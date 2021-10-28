@@ -1,5 +1,6 @@
 const { jwtVerify } = require('../utils/jwtUtil');
 const { COOKIE_NAME, JWT_SECRET } = require('../utils/constants');
+const playService = require('../services/playService');
 
 exports.auth = () => async function (req, res, next) {
     const token = req.cookies[COOKIE_NAME];
@@ -14,7 +15,7 @@ exports.auth = () => async function (req, res, next) {
         next();
     } catch (error) {
         res.locals.error = error;
-        // res.render('404');
+        res.render('404');
     }
 }
 
@@ -24,7 +25,7 @@ exports.isGuest = function (req, res, next) {
     }
 
     res.locals.error = { message: 'You are logged in' }
-    // res.status(401).render('404');
+    res.status(401).render('404');
 }
 
 exports.isAuthenticated = function (req, res, next) {
@@ -33,9 +34,16 @@ exports.isAuthenticated = function (req, res, next) {
     }
 
     res.locals.error = { message: 'You are not authenticated' }
-    // res.status(401).render('404');
+    res.status(401).render('404');
 }
 
-exports.isAuthorized = function (req, res, next) {
-    // TO DO when there is created object in DB, by logged in user!
+exports.isAuthorized = async function (req, res, next) {
+    const play = await playService.getOne(req.user._id);
+
+    if(play.owner == req.user._id) {
+        return next();
+    }
+
+    res.locals.error = { message: 'You are not authorized' }
+    res.status(401).render('404');
 }

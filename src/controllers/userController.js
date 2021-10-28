@@ -9,7 +9,6 @@ function getRegisterPage(req, res) {
 }
 
 function getLoginPage(req, res) {
-    res.locals.title = 'Login Page';
     res.render('user/login');
 }
 

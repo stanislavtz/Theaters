@@ -3,21 +3,28 @@ const bcrypt = require('bcrypt');
 
 const { SALT_ROUNDS } = require('../utils/constants');
 
-const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Name is required']
+const userSchema = new mongoose.Schema(
+    {
+        username: {
+            type: String,
+            required: [true, 'Username is required'],
+            unique: true
+        },
+        password: {
+            type: String,
+            required: [true, 'Password is required']
+        },
+        likedPlays: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: 'Play'
+            }
+        ]
     },
-    username: {
-        type: String,
-        required: [true, 'Username is required'],
-        unique: true
-    },
-    password: {
-        type: String,
-        required: [true, 'Password is required']
+    {
+        timestamps: true
     }
-});
+);
 
 userSchema.pre('save', async function (next) {
     try {

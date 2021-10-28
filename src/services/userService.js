@@ -6,13 +6,13 @@ const { JWT_SECRET } = require('../utils/constants');
 const { jwtSign } = require('../utils/jwtUtil');
 
 function register(data) {
-    const { name, username, password, rePassword } = data; // Depends of body sent by request
+    const { username, password, rePassword } = data;
 
     if (password !== rePassword) {
         throw { message: 'Password don\'t match' }
     }
 
-    return User.create({ name, username, password }); // Depends of User model
+    return User.create({ username, password });
 }
 
 async function login(data) {
@@ -45,7 +45,7 @@ function getById(id) {
 }
 
 function updateById(id, user) {
-    return User.findByIdAndUpdate(id, user);
+    return User.findByIdAndUpdate(id, user, { runValidators: true });
 }
 
 module.exports = {

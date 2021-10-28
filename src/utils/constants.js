@@ -12,4 +12,4 @@ exports.SALT_ROUNDS = 10;
 
 exports.JWT_SECRET = 'customsecret';
 
-exports.COOKIE_NAME = `${projectName.toLowerCase()}-cookie-name`;
+exports.COOKIE_NAME = `${projectName.toLowerCase()}-cookie`;

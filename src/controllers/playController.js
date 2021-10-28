@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 
 const playService = require('../services/playService');
 const userService = require('../services/userService');
@@ -35,10 +36,19 @@ async function createPlay(req, res) {
 
 async function getDetailsPage(req, res) {
     try {
-        const play = await playService.getOne(req.params.playId);
+        const play = await playService.getById(req.params.playId);
         if (play.owner == req.user._id) {
             res.locals.user.isOwner = true;
         }
+
+        const playList = play.usersLiked.map(p => p.toString());
+        console.log(play.usersLiked)
+        console.log(playList)
+        console.log(req.user._id)
+        if (playList.includes(req.user._id)) {
+            res.locals.user.hasLiked = true;
+        }
+
         res.render('theater/details', { ...play })
 
     } catch (error) {
@@ -49,7 +59,7 @@ async function getDetailsPage(req, res) {
 
 async function getEditPage(req, res) {
     try {
-        const play = await playService.getOne(req.params.playId);
+        const play = await playService.getById(req.params.playId);
         if (play.isPublic) {
             play.isChecked = "true";
         }
@@ -60,7 +70,6 @@ async function getEditPage(req, res) {
         console.error(error);
         res.redirect('404');
     }
-
 }
 
 async function editPlay(req, res) {
@@ -79,7 +88,7 @@ async function editPlay(req, res) {
             data.isPublic = false
         }
 
-        await playService.update(req.params.playId, data);
+        await playService.updateById(req.params.playId, data);
         res.redirect('/');
 
     } catch (error) {
@@ -96,17 +105,19 @@ async function deletePlay(req, res) {
 
 async function likePlay(req, res) {
     const user = await userService.getById(req.user._id);
-    const play = await playService.getOne(req.params.playId);
+    const play = await playService.getById(req.params.playId);
 
-    user.likedPlays.push(play._id);
-    play.usersLiked.push(user._id);
+    if (!user.likedPlays.includes(play._id)) {
+        user.likedPlays.push(play._id);
+        play.usersLiked.push(user._id);
 
-    user.hasLiked = true;
+        res.locals.user.hasLiked = true;
 
-    await userService.updateById(user._id, user);
-    await playService.update(user._id, user);
+        await userService.updateById(user._id, user);
+        await playService.updateById(play._id, play);
+    }
 
-    res.redirect('/');
+    res.redirect(`/plays/${play._id}/details`);
 }
 
 router.get('/create', isAuthenticated, getCreatePage);

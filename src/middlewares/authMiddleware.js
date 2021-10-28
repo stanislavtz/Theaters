@@ -38,7 +38,7 @@ exports.isAuthenticated = function (req, res, next) {
 }
 
 exports.isAuthorized = async function (req, res, next) {
-    const play = await playService.getOne(req.user._id);
+    const play = await playService.getById(req.params.playId);
 
     if(play.owner == req.user._id) {
         return next();

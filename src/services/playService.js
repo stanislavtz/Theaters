@@ -6,9 +6,9 @@ const getTop = (number) => Play.find().where({ isPublic: true }).sort({ usersLik
 
 const getAll = () => Play.find().where({ isPublic: true }).sort({ createdAt: -1 }).lean();
 
-const getOne = (id) => Play.findById(id).lean();
+const getById = (id) => Play.findById(id).lean();
 
-const update = (id, play) => Play.findByIdAndUpdate(id, play, { runValidators: true });
+const updateById = (id, play) => Play.findByIdAndUpdate(id, play, { runValidators: true });
 
 const deleteById = (id) => Play.findByIdAndDelete(id);
 
@@ -17,7 +17,7 @@ module.exports = {
     create,
     getTop,
     getAll,
-    getOne,
-    update,
+    getById,
+    updateById,
     deleteById
 }

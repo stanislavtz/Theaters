@@ -12,6 +12,18 @@ async function getHomePage(req, res) {
     }
 }
 
+async function getSortedByDate(req, res) {
+    const plays = await playService.getAll('createdAt');
+    res.render('home/user', { plays });
+}
+
+async function getSortedByLikes(req, res) {
+    const plays = await playService.getAll('likes');
+    res.render('home/user', { plays });
+}
+
 router.get('/', getHomePage);
+router.get('/plays/sort-by-date', getSortedByDate);
+router.get('/plays/sort-by-likes', getSortedByLikes);
 
 module.exports = router;

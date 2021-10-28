@@ -1,9 +1,8 @@
 const router = require('express').Router();
-const mongoose = require('mongoose');
 
 const playService = require('../services/playService');
 const userService = require('../services/userService');
-const { isAuthenticated, isAuthorized } = require('../middlewares/authMiddleware');
+const { isAuthenticated, isAuthorized, isNotOwner } = require('../middlewares/authMiddleware');
 
 function getCreatePage(req, res) {
     res.render('theater/create');
@@ -42,9 +41,7 @@ async function getDetailsPage(req, res) {
         }
 
         const playList = play.usersLiked.map(p => p.toString());
-        console.log(play.usersLiked)
-        console.log(playList)
-        console.log(req.user._id)
+       
         if (playList.includes(req.user._id)) {
             res.locals.user.hasLiked = true;
         }
@@ -130,6 +127,6 @@ router.post('/:playId/edit', isAuthenticated, isAuthorized, editPlay);
 
 router.get('/:playId/delete', isAuthenticated, isAuthorized, deletePlay);
 
-router.get('/:playId/like', likePlay);
+router.get('/:playId/like', isAuthenticated, isNotOwner, likePlay);
 
 module.exports = router;

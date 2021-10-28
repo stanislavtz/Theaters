@@ -47,3 +47,14 @@ exports.isAuthorized = async function (req, res, next) {
     res.locals.error = { message: 'You are not authorized' }
     res.status(401).render('404');
 }
+
+exports.isNotOwner = async function (req, res, next) {
+    const play = await playService.getById(req.params.playId);
+
+    if(play.owner != req.user._id) {
+        return next();
+    }
+
+    res.locals.error = { message: 'You are creator of this play' }
+    res.status(401).render('404');
+}

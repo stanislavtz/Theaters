@@ -8,11 +8,15 @@ const userSchema = new mongoose.Schema(
         username: {
             type: String,
             required: [true, 'Username is required'],
-            unique: true
+            unique: true,
+            min:[3, 'Username should be at least 3 characters'],
+            validate: [/[A-Za-z0-9]+/]
         },
         password: {
             type: String,
-            required: [true, 'Password is required']
+            required: [true, 'Password is required'],
+            min:[3, 'Username should be at least 3 characters'],
+            validate: [/[A-Za-z0-9]+/]
         },
         likedPlays: [
             {

@@ -5,16 +5,19 @@ const playSchema = new mongoose.Schema(
         title: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            validate: [/^[-\w ]*[^\s\W].?$/, 'Can not be empty string']
         },
         description: {
             type: String,
             required: true,
-            max: 50
+            max: 50,
+            validate: [/^[-\w ]*[^\s\W].?$/, 'Can not be empty string']
         },
         imageUrl: {
             type: String,
             required: true,
+            validate: [/^[-\w ]*[^\s\W].?$/, 'Can not be empty string']
         },
         isPublic: {
             type: Boolean,

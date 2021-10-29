@@ -5,7 +5,12 @@ const userService = require('../services/userService');
 const { isAuthenticated, isAuthorized, isNotOwner } = require('../middlewares/authMiddleware');
 
 function getCreatePage(req, res) {
-    res.render('theater/create');
+    try {
+        res.render('theater/create');
+    } catch (error) {
+        res.locals.error = { message: 'The server is not connected' }
+        res.render('404');
+    }
 }
 
 async function createPlay(req, res) {
@@ -50,7 +55,8 @@ async function getDetailsPage(req, res) {
 
     } catch (error) {
         console.error(error);
-        res.redirect('404');
+        res.locals.error = { message: 'The server is not connected' }
+        res.render('404');
     }
 }
 
@@ -65,7 +71,8 @@ async function getEditPage(req, res) {
 
     } catch (error) {
         console.error(error);
-        res.redirect('404');
+        res.locals.error = { message: 'The server is not connected' }
+        res.render('404');
     }
 }
 
@@ -96,15 +103,26 @@ async function editPlay(req, res) {
 }
 
 async function deletePlay(req, res) {
-    await playService.deleteById(req.params.playId);
-    res.redirect('/');
+    try {
+        await playService.deleteById(req.params.playId);
+        res.redirect('/');
+        
+    } catch (error) {
+        console.error(error);
+        res.locals.error = { message: 'The object is not available' }
+        res.render('404');
+    }
 }
 
 async function likePlay(req, res) {
-    const user = await userService.getById(req.user._id);
-    const play = await playService.getById(req.params.playId);
+    try {
+        const user = await userService.getById(req.user._id);
+        const play = await playService.getById(req.params.playId);
+    
+        if (user.likedPlays.includes(play._id)) {
+            throw {message: `${user.username} already had liked this play`}
+        }
 
-    if (!user.likedPlays.includes(play._id)) {
         user.likedPlays.push(play._id);
         play.usersLiked.push(user._id);
 
@@ -112,9 +130,13 @@ async function likePlay(req, res) {
 
         await userService.updateById(user._id, user);
         await playService.updateById(play._id, play);
+    
+        res.redirect(`/plays/${play._id}/details`);
+        
+    } catch (error) {
+        console.error(error);
+        res.locals.error = error;
     }
-
-    res.redirect(`/plays/${play._id}/details`);
 }
 
 router.get('/create', isAuthenticated, getCreatePage);
@@ -122,11 +144,11 @@ router.post('/create', isAuthenticated, createPlay);
 
 router.get('/:playId/details', isAuthenticated, getDetailsPage);
 
-router.get('/:playId/edit', isAuthenticated, isAuthorized, getEditPage);
-router.post('/:playId/edit', isAuthenticated, isAuthorized, editPlay);
+router.get('/:playId/edit', isAuthorized, getEditPage);
+router.post('/:playId/edit', isAuthorized, editPlay);
 
-router.get('/:playId/delete', isAuthenticated, isAuthorized, deletePlay);
+router.get('/:playId/delete', isAuthorized, deletePlay);
 
-router.get('/:playId/like', isAuthenticated, isNotOwner, likePlay);
+router.get('/:playId/like', isNotOwner, likePlay);
 
 module.exports = router;

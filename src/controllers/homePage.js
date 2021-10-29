@@ -2,24 +2,40 @@ const router = require('express').Router();
 const playService = require('../services/playService');
 
 async function getHomePage(req, res) {
-    let plays;
-    if (req.user) {
-        plays = await playService.getAll();
-        res.render('home/user', { plays });
-    } else {
-        plays = await playService.getTop(3);
-        res.render('home/guest', { plays });
+    try {
+        let plays;
+        if (req.user) {
+            plays = await playService.getAll();
+            res.render('home/user', { plays });
+        } else {
+            plays = await playService.getTop(3);
+            res.render('home/guest', { plays });
+        }
+    } catch (error) {
+        res.locals.error = { message: 'Server crashed' }
+        res.render('404');
     }
+
 }
 
 async function getSortedByDate(req, res) {
-    const plays = await playService.getAll('createdAt');
-    res.render('home/user', { plays });
+    try {
+        const plays = await playService.getAll('createdAt');
+        res.render('home/user', { plays });
+    } catch (error) {
+        res.locals.error = { message: 'Server crashed' }
+        res.render('404');
+    }
 }
 
 async function getSortedByLikes(req, res) {
-    const plays = await playService.getAll('likes');
-    res.render('home/user', { plays });
+    try {
+        const plays = await playService.getAll('likes');
+        res.render('home/user', { plays });
+    } catch (error) {
+        res.locals.error = { message: 'Server crashed' }
+        res.render('404');
+    }
 }
 
 router.get('/', getHomePage);

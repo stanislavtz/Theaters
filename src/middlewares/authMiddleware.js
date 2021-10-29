@@ -40,7 +40,7 @@ exports.isAuthenticated = function (req, res, next) {
 exports.isAuthorized = async function (req, res, next) {
     const play = await playService.getById(req.params.playId);
 
-    if(play.owner == req.user._id) {
+    if(req.user && play.owner == req.user._id) {
         return next();
     }
 
@@ -51,10 +51,11 @@ exports.isAuthorized = async function (req, res, next) {
 exports.isNotOwner = async function (req, res, next) {
     const play = await playService.getById(req.params.playId);
 
-    if(play.owner != req.user._id) {
+    if(req.user && play.owner != req.user._id) {
         return next();
     }
 
     res.locals.error = { message: 'You are creator of this play' }
-    res.status(401).render('404');
+    res.locals.user.isOwner = true;
+    res.status(401).render('theater/details', { ...play });
 }
